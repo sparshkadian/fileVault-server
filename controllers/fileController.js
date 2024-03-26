@@ -27,3 +27,26 @@ export const newFile = async (req, res, next) => {
     next(new AppError(error.message));
   }
 };
+
+export const moveToTrash = async (req, res) => {
+  try {
+    await File.findByIdAndUpdate(
+      req.params.fileId,
+      {
+        $set: {
+          inTrash: true,
+        },
+      },
+      {
+        runValidators: true,
+        new: true,
+      }
+    );
+    res.status(200).json({
+      status: 'success',
+    });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};
