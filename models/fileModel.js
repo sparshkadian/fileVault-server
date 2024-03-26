@@ -2,9 +2,14 @@ import mongoose from 'mongoose';
 
 const fileSchema = mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    },
+
     fileName: { type: String, required: true },
 
-    fileType: { type: String, required: true },
+    mimeType: { type: String, required: true },
 
     fileSize: { type: Number, required: true },
 
