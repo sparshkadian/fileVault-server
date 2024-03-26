@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 import authRouter from './routes/authRoutes.js';
+import fileRouter from './routes/fileRoutes.js';
 import globalErrorHandler from './controllers/errorController.js';
 
 const app = express();
@@ -11,6 +12,7 @@ app.use(cors());
 app.use(morgan('dev'));
 
 app.use('/api/auth', authRouter);
+app.use('/api/file', fileRouter);
 
 app.use(globalErrorHandler);
 

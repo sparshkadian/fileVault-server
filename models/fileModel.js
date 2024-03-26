@@ -17,7 +17,10 @@ const fileSchema = mongoose.Schema(
 
     inTrash: { type: Boolean, default: false },
 
-    downloadLink: String,
+    downloadLink: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,
