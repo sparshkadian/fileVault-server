@@ -1,9 +1,28 @@
 import File from '../models/fileModel.js';
 import AppError from '../utils/AppError.js';
 
-export const getAllFiles = async (req, res, next) => {
+export const getNonTrashFiles = async (req, res, next) => {
   try {
     let files = await File.find({ userId: req.params.userId });
+    files = files.filter((file) => {
+      return !file.inTrash;
+    });
+    res.status(200).json({
+      status: 'success',
+      files,
+    });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};
+
+export const getTrashFiles = async (req, res) => {
+  try {
+    let files = await File.find({ userId: req.params.userId });
+    files = files.filter((file) => {
+      return file.inTrash;
+    });
     res.status(200).json({
       status: 'success',
       files,
