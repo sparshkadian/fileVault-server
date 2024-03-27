@@ -4,13 +4,6 @@ import AppError from '../utils/AppError.js';
 export const getAllFiles = async (req, res, next) => {
   try {
     let files = await File.find({ userId: req.params.userId });
-
-    files = files.filter((file) => {
-      return !file.inTrash;
-    });
-
-    console.log(files);
-
     res.status(200).json({
       status: 'success',
       files,

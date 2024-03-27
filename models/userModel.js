@@ -25,6 +25,11 @@ const userSchema = mongoose.Schema(
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-DSW54utMSZ6J1F9luVr6YYDoRZ-FQYCL3w&usqp=CAU',
     },
 
+    about: {
+      type: String,
+      default: '',
+    },
+
     password: {
       type: String,
       required: true,

@@ -4,6 +4,7 @@ import cors from 'cors';
 
 import authRouter from './routes/authRoutes.js';
 import fileRouter from './routes/fileRoutes.js';
+import userRouter from './routes/userRoutes.js';
 import globalErrorHandler from './controllers/errorController.js';
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(morgan('dev'));
 
 app.use('/api/auth', authRouter);
 app.use('/api/file', fileRouter);
+app.use('/api/user', userRouter);
 
 app.use(globalErrorHandler);
 
