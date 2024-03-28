@@ -120,3 +120,47 @@ export const emptyTrash = async (req, res, next) => {
     next(new AppError(error.message));
   }
 };
+
+export const addToStarred = async (req, res, next) => {
+  try {
+    await File.findByIdAndUpdate(
+      req.params.fileId,
+      {
+        $set: {
+          starred: true,
+        },
+      },
+      {
+        runValidators: true,
+      }
+    );
+    res
+      .status(200)
+      .json({ status: 'success', message: 'File added to Starred' });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};
+
+export const removeFromStarred = async (req, res, next) => {
+  try {
+    await File.findByIdAndUpdate(
+      req.params.fileId,
+      {
+        $set: {
+          starred: false,
+        },
+      },
+      {
+        runValidators: true,
+      }
+    );
+    res
+      .status(200)
+      .json({ status: 'success', message: 'File removed from Starred' });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};
