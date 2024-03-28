@@ -103,3 +103,20 @@ export const deleteFile = async (req, res, next) => {
     next(new AppError(error.message));
   }
 };
+
+export const emptyTrash = async (req, res, next) => {
+  try {
+    const fileIds = req.params.fileIds.split(',');
+    const deletionPromises = fileIds.map(async (id) => {
+      await File.findByIdAndDelete(id);
+    });
+
+    await Promise.all(deletionPromises);
+    res
+      .status(200)
+      .json({ status: 'success', message: 'Files deleted successfully' });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};
