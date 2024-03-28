@@ -33,6 +33,22 @@ export const getTrashFiles = async (req, res) => {
   }
 };
 
+export const getStarredFiles = async (req, res) => {
+  try {
+    let files = await File.find({ userId: req.params.userId });
+    files = files.filter((file) => {
+      return file.starred;
+    });
+    res.status(200).json({
+      status: 'success',
+      files,
+    });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};
+
 export const newFile = async (req, res, next) => {
   try {
     req.body.userId = req.params.userId;

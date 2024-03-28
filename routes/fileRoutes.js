@@ -4,6 +4,7 @@ import {
   newFile,
   getNonTrashFiles,
   getTrashFiles,
+  getStarredFiles,
   moveToTrash,
   moveOutOfTrash,
   deleteFile,
@@ -19,6 +20,7 @@ const Router = express.Router();
 // Getting normal, trash & starred files and creating new file
 Router.route('/:userId').get(getNonTrashFiles).post(newFile);
 Router.get('/trashFiles/:userId', getTrashFiles);
+Router.get('/starredFiles/:userId', getStarredFiles);
 
 // Trash Routes
 Router.delete('/:fileId', verifyUserToken, moveToTrash);
