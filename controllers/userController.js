@@ -21,3 +21,15 @@ export const updateUser = async (req, res, next) => {
     next(new AppError(error.message));
   }
 };
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    await User.findByIdAndDelete(req.params.userId);
+    res.status(204).json({
+      status: 'success',
+    });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};

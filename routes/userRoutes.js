@@ -1,9 +1,9 @@
 import express from 'express';
 
-import { updateUser } from '../controllers/userController.js';
+import { updateUser, deleteUser } from '../controllers/userController.js';
 
 const Router = express.Router();
 
-Router.patch('/:userId', updateUser);
+Router.route('/:userId').patch(updateUser).delete(deleteUser);
 
 export default Router;

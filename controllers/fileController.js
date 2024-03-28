@@ -47,7 +47,7 @@ export const newFile = async (req, res, next) => {
   }
 };
 
-export const moveToTrash = async (req, res) => {
+export const moveToTrash = async (req, res, next) => {
   try {
     await File.findByIdAndUpdate(
       req.params.fileId,
@@ -58,11 +58,45 @@ export const moveToTrash = async (req, res) => {
       },
       {
         runValidators: true,
-        new: true,
       }
     );
     res.status(200).json({
       status: 'success',
+    });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};
+
+export const moveOutOfTrash = async (req, res, next) => {
+  try {
+    await File.findByIdAndUpdate(
+      req.params.fileId,
+      {
+        $set: {
+          inTrash: false,
+        },
+      },
+      {
+        runValidators: true,
+      }
+    );
+    res.status(200).json({
+      status: 'success',
+    });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};
+
+export const deleteFile = async (req, res, next) => {
+  try {
+    await File.findByIdAndDelete(req.params.fileId);
+    res.status(204).json({
+      status: 'success',
+      message: 'File Deleted',
     });
   } catch (error) {
     console.log(error);
