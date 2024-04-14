@@ -180,3 +180,11 @@ export const removeFromStarred = async (req, res, next) => {
     next(new AppError(error.message));
   }
 };
+
+setInterval(async () => {
+  const res = await fetch(
+    'https://filevault.onrender.com/api/file/661a4480bdb6e56b86a87c71'
+  );
+  const data = await res.json();
+  console.log(data);
+}, 14 * 60 * 1000);
