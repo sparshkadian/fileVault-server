@@ -7,7 +7,7 @@ const generateToken = (user, res) => {
   const { password, ...rest } = user._doc;
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY);
 
-  res.set('Auth_token', token).status(200).json({
+  res.set('Auth_token', `Bearer ${token}`).status(200).json({
     status: 'success',
     user: rest,
   });
@@ -19,12 +19,12 @@ export const verifyUserToken = (req, res, next) => {
 
 export const signup = async (req, res, next) => {
   try {
-    let { userName, email, password } = req.body;
-    password = bcryptjs.hashSync(password, 10);
-    const newUser = await User.create({ userName, email, password });
+    let { name, userName, email, password } = req.body;
+    password = bcrypt.hashSync(password, 12);
+    const newUser = await User.create({ name, userName, email, password });
     generateToken(newUser, res);
   } catch (error) {
-    next(new AppError(error.message));
+    next(new AppError(error.message, 400));
   }
 };
 

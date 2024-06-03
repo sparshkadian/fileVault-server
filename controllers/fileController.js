@@ -17,6 +17,27 @@ export const getNonTrashFiles = async (req, res, next) => {
   }
 };
 
+export const updateFile = async (req, res, next) => {
+  try {
+    const updatedFile = await File.findByIdAndUpdate(
+      req.params.fileId,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    res.status(200).json({
+      status: 'success',
+      file: updatedFile,
+    });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message));
+  }
+};
+
 export const getTrashFiles = async (req, res) => {
   try {
     let files = await File.find({ userId: req.params.userId });

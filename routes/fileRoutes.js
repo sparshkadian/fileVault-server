@@ -11,6 +11,7 @@ import {
   emptyTrash,
   addToStarred,
   removeFromStarred,
+  updateFile,
 } from '../controllers/fileController.js';
 
 import { verifyUserToken } from '../controllers/authController.js';
@@ -19,6 +20,7 @@ const Router = express.Router();
 
 // Getting normal, trash & starred files and creating new file
 Router.route('/:userId').get(getNonTrashFiles).post(newFile);
+Router.patch('/:fileId', updateFile);
 Router.get('/trashFiles/:userId', getTrashFiles);
 Router.get('/starredFiles/:userId', getStarredFiles);
 
