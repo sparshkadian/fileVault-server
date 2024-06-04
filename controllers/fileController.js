@@ -18,7 +18,6 @@ export const getNonTrashFiles = async (req, res, next) => {
 };
 
 export const updateFile = async (req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
   try {
     const updatedFile = await File.findByIdAndUpdate(
       req.params.fileId,
