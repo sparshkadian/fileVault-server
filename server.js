@@ -10,7 +10,7 @@ app.listen(port, () => {
 });
 
 mongoose
-  .connect(process.env.MONGODB)
+  .connect(process.env.MONGODB, {})
   .then(() => {
     console.log('DB connection successfull 🎉');
   })

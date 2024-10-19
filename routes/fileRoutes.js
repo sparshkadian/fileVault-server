@@ -12,6 +12,7 @@ import {
   addToStarred,
   removeFromStarred,
   updateFile,
+  addAllToTrash,
 } from '../controllers/fileController.js';
 
 import { verifyUserToken } from '../controllers/authController.js';
@@ -29,6 +30,7 @@ Router.delete('/:fileId', verifyUserToken, moveToTrash);
 Router.patch('/moveOutOfTrash/:fileId', verifyUserToken, moveOutOfTrash);
 Router.delete('/permanent/:fileId', verifyUserToken, deleteFile);
 Router.delete('/emptyTrash/:fileIds', verifyUserToken, emptyTrash);
+Router.delete('/addAllToTrash/:fileIds', verifyUserToken, addAllToTrash);
 
 // Starred Routes
 Router.patch('/addToStarred/:fileId', addToStarred);

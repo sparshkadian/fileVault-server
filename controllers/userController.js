@@ -33,3 +33,24 @@ export const deleteUser = async (req, res, next) => {
     next(new AppError(error.message));
   }
 };
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const limit = +req.query['limit'];
+    const page = +req.query['page'];
+
+    const users = await User.find()
+      .limit(limit)
+      .skip((page - 1) * limit);
+    const usersCount = await User.countDocuments();
+
+    res.status(200).json({
+      status: 'success',
+      totalPages: Math.ceil(usersCount / limit),
+      currentPage: page,
+      users,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};

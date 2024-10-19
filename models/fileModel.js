@@ -7,7 +7,7 @@ const fileSchema = mongoose.Schema(
       ref: 'User',
     },
 
-    fileName: { type: String, required: true },
+    fileName: { type: String, required: true, index: { text: true } },
 
     mimeType: { type: String, required: true },
 
@@ -20,6 +20,14 @@ const fileSchema = mongoose.Schema(
     downloadLink: {
       type: String,
       default: '',
+    },
+    description: {
+      type: String,
+      default: '',
+    },
+    downloadCount: {
+      type: Number,
+      default: 0,
     },
   },
   {

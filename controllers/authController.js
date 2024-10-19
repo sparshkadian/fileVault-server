@@ -2,12 +2,13 @@ import User from '../models/userModel.js';
 import AppError from '../utils/AppError.js';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { requiredFields } from '../utils/requiredFields.js';
 
 const generateToken = (user, res) => {
   const { password, ...rest } = user._doc;
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY);
 
-  res.set('Auth_token', `Bearer ${token}`).status(200).json({
+  res.cookie('token', token).status(200).json({
     status: 'success',
     user: rest,
   });
@@ -19,9 +20,16 @@ export const verifyUserToken = (req, res, next) => {
 
 export const signup = async (req, res, next) => {
   try {
-    let { name, userName, email, password } = req.body;
-    password = bcrypt.hashSync(password, 12);
-    const newUser = await User.create({ name, userName, email, password });
+    let { userName, email, password } = req.body;
+    const requiredBodyParams = [userName, email, password];
+    requiredFields(requiredBodyParams, next);
+
+    const emailExists = await User.findOne({ email });
+    if (emailExists) {
+      return next(new AppError('Email Already in Use', 403));
+    }
+    password = bcryptjs.hashSync(password, 12);
+    const newUser = await User.create({ userName, email, password });
     generateToken(newUser, res);
   } catch (error) {
     next(new AppError(error.message, 400));
@@ -32,6 +40,7 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
+      // add the required params util function
       return next(new AppError('Both Fields are required', 400));
     }
     const user = await User.findOne({ email });

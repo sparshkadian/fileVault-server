@@ -3,14 +3,27 @@ import AppError from '../utils/AppError.js';
 
 export const getNonTrashFiles = async (req, res, next) => {
   try {
-    let files = await File.find({ userId: req.params.userId });
-    files = files.filter((file) => {
-      return !file.inTrash;
-    });
-    res.status(200).json({
-      status: 'success',
-      files,
-    });
+    const userId = req.params.userId;
+    const searchQuery = req.query['search'];
+    if (searchQuery.length === 0) {
+      let files = await File.find({ userId });
+      files = files.filter((file) => {
+        return !file.inTrash;
+      });
+      res.status(200).json({
+        status: 'success',
+        files,
+      });
+    } else {
+      let files = await File.find({
+        $text: { $search: searchQuery },
+        userId,
+      });
+      res.status(200).json({
+        status: 'success',
+        files,
+      });
+    }
   } catch (error) {
     console.log(error);
     next(new AppError(error.message));
@@ -19,18 +32,19 @@ export const getNonTrashFiles = async (req, res, next) => {
 
 export const updateFile = async (req, res, next) => {
   try {
-    const updatedFile = await File.findByIdAndUpdate(
-      req.params.fileId,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const fileId = req.params.fileId;
+    const file = await File.findOne({ _id: fileId });
+    if (!file) {
+      return next(new AppError('No file found with this id!', 404));
+    }
+    const updatedFile = await File.findByIdAndUpdate(fileId, req.body, {
+      runValidators: true,
+      new: true,
+    });
 
     res.status(200).json({
       status: 'success',
-      file: updatedFile,
+      updatedFile,
     });
   } catch (error) {
     console.log(error);
@@ -38,32 +52,59 @@ export const updateFile = async (req, res, next) => {
   }
 };
 
-export const getTrashFiles = async (req, res) => {
+export const getTrashFiles = async (req, res, next) => {
   try {
-    let files = await File.find({ userId: req.params.userId });
-    files = files.filter((file) => {
-      return file.inTrash;
-    });
-    res.status(200).json({
-      status: 'success',
-      files,
-    });
+    const userId = req.params.userId;
+    const searchQuery = req.query['search'];
+    if (searchQuery.length === 0) {
+      let files = await File.find({ userId });
+      files = files.filter((file) => {
+        return file.inTrash;
+      });
+      res.status(200).json({
+        status: 'success',
+        files,
+      });
+    } else {
+      console.log('by query', searchQuery);
+      let files = await File.find({ $text: { $search: searchQuery }, userId });
+      files = files.filter((file) => {
+        return file.inTrash;
+      });
+      res.status(200).json({
+        status: 'success',
+        files,
+      });
+    }
   } catch (error) {
     console.log(error);
     next(new AppError(error.message));
   }
 };
 
-export const getStarredFiles = async (req, res) => {
+export const getStarredFiles = async (req, res, next) => {
   try {
-    let files = await File.find({ userId: req.params.userId });
-    files = files.filter((file) => {
-      return file.starred;
-    });
-    res.status(200).json({
-      status: 'success',
-      files,
-    });
+    const userId = req.params.userId;
+    const searchQuery = req.query['search'];
+    if (searchQuery.length === 0) {
+      let files = await File.find({ userId });
+      files = files.filter((file) => {
+        return file.starred;
+      });
+      res.status(200).json({
+        status: 'success',
+        files,
+      });
+    } else {
+      let files = await File.find({ $text: { $search: searchQuery }, userId });
+      files = files.filter((file) => {
+        return file.starred;
+      });
+      res.status(200).json({
+        status: 'success',
+        files,
+      });
+    }
   } catch (error) {
     console.log(error);
     next(new AppError(error.message));
@@ -73,10 +114,13 @@ export const getStarredFiles = async (req, res) => {
 export const newFile = async (req, res, next) => {
   try {
     req.body.userId = req.params.userId;
-    const newFile = await File.create(req.body);
+    const addFilesPromises = req.body.map(
+      async (file) => await File.create(file)
+    );
+    const files = await Promise.all(addFilesPromises);
     res.status(200).json({
       status: 'success',
-      file: newFile,
+      files,
     });
   } catch (error) {
     console.log(error);
@@ -86,6 +130,7 @@ export const newFile = async (req, res, next) => {
 
 export const moveToTrash = async (req, res, next) => {
   try {
+    console.log(req.params.fileId);
     await File.findByIdAndUpdate(
       req.params.fileId,
       {
@@ -97,8 +142,11 @@ export const moveToTrash = async (req, res, next) => {
         runValidators: true,
       }
     );
+
+    const nonTrashFiles = await File.find({ inTrash: false });
     res.status(200).json({
       status: 'success',
+      files: nonTrashFiles,
     });
   } catch (error) {
     console.log(error);
@@ -141,6 +189,25 @@ export const deleteFile = async (req, res, next) => {
   }
 };
 
+export const addAllToTrash = async (req, res, next) => {
+  try {
+    const fileIds = req.params.fileIds.split(',');
+
+    const promises = await fileIds.map(async (id) => {
+      await File.findByIdAndUpdate(id, { inTrash: true });
+    });
+
+    await Promise.all(promises);
+    res.status(200).json({
+      status: 'success',
+      message: 'all files added to Trash',
+    });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message, 500));
+  }
+};
+
 export const emptyTrash = async (req, res, next) => {
   try {
     const fileIds = req.params.fileIds.split(',');
@@ -171,9 +238,8 @@ export const addToStarred = async (req, res, next) => {
         runValidators: true,
       }
     );
-    res
-      .status(200)
-      .json({ status: 'success', message: 'File added to Starred' });
+    const files = await File.find();
+    res.status(200).json({ status: 'success', files });
   } catch (error) {
     console.log(error);
     next(new AppError(error.message));
